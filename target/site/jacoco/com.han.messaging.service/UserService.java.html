@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Messaging System</a> &gt; <a href="index.source.html" class="el_package">com.han.messaging.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.han.messaging.service;
+
+import com.han.messaging.dao.UserDAO;
+import com.han.messaging.dao.UserValidationCodeDAO;
+import com.han.messaging.enums.Gender;
+import com.han.messaging.enums.StatusCode;
+import com.han.messaging.exception.MessagingServiceException;
+import com.han.messaging.model.User;
+import com.han.messaging.model.UserValidationCode;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+@Service
+<span class="fc" id="L17">public class UserService {</span>
+
+    @Autowired // dependency injection
+    private UserDAO userDAO;
+
+    @Autowired
+    private UserValidationCodeDAO userValidationCodeDAO;
+
+    public void register(String username,
+                         String password,
+                         String repeatPassword,
+                         String email,
+                         Gender gender,
+                         String address,
+                         String nickname) throws Exception {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (!password.equals(repeatPassword)) {</span>
+<span class="fc" id="L33">            throw new MessagingServiceException(StatusCode.PASSWORDS_NOT_MATCHED);</span>
+        }
+
+<span class="pc bpc" id="L36" title="1 of 4 branches missed.">        if (username.isEmpty() || email.isEmpty()) {</span>
+<span class="fc" id="L37">            throw new MessagingServiceException(StatusCode.USERNAME_OR_EMAIL_IS_EMPTY);</span>
+        }
+
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (password.length() &lt; 16) {</span>
+<span class="nc" id="L41">            throw new MessagingServiceException(StatusCode.PASSWORD_TOO_SHORT);</span>
+        }
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (this.userDAO.selectByEmail(email) != null) {</span>
+<span class="fc" id="L45">            throw new MessagingServiceException(StatusCode.EMAIL_EXISTS_ALREADY);</span>
+        }
+
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (this.userDAO.selectByUsername(username) != null) {</span>
+<span class="fc" id="L49">            throw new MessagingServiceException(StatusCode.USERNAME_EXISTS_ALREADY);</span>
+        }
+
+<span class="fc" id="L52">        User user = new User();</span>
+<span class="fc" id="L53">        user.setUsername(username);</span>
+<span class="fc" id="L54">        user.setPassword(password);</span>
+<span class="fc" id="L55">        user.setEmail(email);</span>
+<span class="fc" id="L56">        user.setGender(gender);</span>
+<span class="fc" id="L57">        user.setAddress(address);</span>
+<span class="fc" id="L58">        user.setNickname(nickname);</span>
+<span class="fc" id="L59">        user.setRegisterTime(new Date());</span>
+<span class="fc" id="L60">        user.setValid(false);</span>
+
+<span class="fc" id="L62">        this.userDAO.insert(user);</span>
+
+<span class="fc" id="L64">        String validationCode = RandomStringUtils.randomNumeric(6);</span>
+
+<span class="fc" id="L66">        UserValidationCode userValidationCode = new UserValidationCode();</span>
+<span class="fc" id="L67">        userValidationCode.setUserId(user.getId());</span>
+<span class="fc" id="L68">        userValidationCode.setValidationCode(validationCode);</span>
+<span class="fc" id="L69">        this.userValidationCodeDAO.insert(userValidationCode);</span>
+
+        // send a email
+
+<span class="fc" id="L73">    }</span>
+
+    public void activate(String identification, String password, String validationCode) throws MessagingServiceException {
+
+<span class="fc" id="L77">        User user = this.findUserByIdentification(identification);</span>
+
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (!password.equals(user.getPassword())) {</span>
+<span class="nc" id="L80">            throw new MessagingServiceException(StatusCode.WRONG_PASSWORD);</span>
+        }
+
+<span class="fc" id="L83">        UserValidationCode userValidationCode = this.userValidationCodeDAO.findLatestByUserId(user.getId());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (!userValidationCode.getValidationCode().equals(validationCode)) {</span>
+<span class="nc" id="L85">            throw new MessagingServiceException(StatusCode.WRONG_VALIDATION_CODE);</span>
+        }
+
+<span class="fc" id="L88">        this.userDAO.updateToValid(user.getId());</span>
+<span class="fc" id="L89">        this.userValidationCodeDAO.deleteByUserId(user.getId());</span>
+<span class="fc" id="L90">    }</span>
+
+    public void authenticate(User user) throws MessagingServiceException {
+
+        //...
+<span class="nc bnc" id="L95" title="All 4 branches missed.">        if (user == null || !user.getValid()) {</span>
+<span class="nc" id="L96">            throw new MessagingServiceException(StatusCode.INACTIVE_USER);</span>
+        }
+        //...
+<span class="nc" id="L99">    }</span>
+
+    public String login(String identification, String password) throws MessagingServiceException {
+<span class="nc" id="L102">        User user = this.findUserByIdentification(identification);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (!password.equals(user.getPassword())) {</span>
+<span class="nc" id="L104">            throw new MessagingServiceException(StatusCode.WRONG_PASSWORD);</span>
+        }
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (!user.getValid()) {</span>
+<span class="nc" id="L108">            throw new MessagingServiceException(StatusCode.INACTIVE_USER);</span>
+        }
+
+<span class="nc" id="L111">        String loginToken = RandomStringUtils.randomAlphanumeric(128);</span>
+<span class="nc" id="L112">        this.userDAO.login(loginToken, new Date(), user.getId());</span>
+
+<span class="nc" id="L114">        return loginToken;</span>
+    }
+
+    private User findUserByIdentification(String identification) throws MessagingServiceException {
+<span class="fc" id="L118">        User user = this.userDAO.selectByUsername(identification);</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L120">            user = this.userDAO.selectByEmail(identification);</span>
+        }
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L124">            throw new MessagingServiceException(StatusCode.USER_NOT_EXIST);</span>
+        }
+<span class="fc" id="L126">        return user;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

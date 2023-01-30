@@ -1,0 +1,16 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Messaging System,com.han.messaging.advice,ExceptionHandlers,0,17,0,0,0,5,0,2,0,2
+Messaging System,com.han.messaging.enums,Gender,0,24,0,0,0,3,0,1,0,1
+Messaging System,com.han.messaging.enums,StatusCode,0,157,0,0,0,19,0,5,0,5
+Messaging System,com.han.messaging,MessagingSystemApplication,5,7,0,0,2,2,1,2,1,2
+Messaging System,com.han.messaging.controller,UserController,13,39,0,0,3,13,1,3,1,3
+Messaging System,com.han.messaging.response,UserLoginResponse,10,0,0,0,4,0,2,0,2,0
+Messaging System,com.han.messaging.response,CommonResponse,0,17,0,0,0,6,0,3,0,3
+Messaging System,com.han.messaging.service,UserService,74,144,14,14,16,37,12,8,2,4
+Messaging System,com.han.messaging.service,EmailService,1,3,0,0,1,1,1,1,1,1
+Messaging System,com.han.messaging.request,ActivateUserRequest,131,24,30,0,0,4,19,7,4,7
+Messaging System,com.han.messaging.request,RegisterUserRequest,263,52,62,0,0,8,35,15,4,15
+Messaging System,com.han.messaging.request,UserLoginRequest,115,0,22,0,3,0,20,0,9,0
+Messaging System,com.han.messaging.model,User,14,68,0,0,6,28,4,19,4,19
+Messaging System,com.han.messaging.model,UserValidationCode,3,21,0,0,1,9,1,6,1,6
+Messaging System,com.han.messaging.exception,MessagingServiceException,0,9,0,0,0,4,0,2,0,2
