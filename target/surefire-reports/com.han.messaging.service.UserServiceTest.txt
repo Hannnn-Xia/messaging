@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.han.messaging.service.UserServiceTest
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 s - in com.han.messaging.service.UserServiceTest
