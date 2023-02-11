@@ -10,5 +10,11 @@ jobs:
          uses: actions/setup-java@v1
          with:
            java-version: 11
+       - name: Set up mysql 5.7
+         uses: shogo82148/actions-setup-mysql@v1
+         with:
+            mysql-version: '5.7'
+       - name: Prepare database
+         run: mysql -uroot -hlocalhost < init.sql
        - name: Run tests with Maven
          run: mvn test
