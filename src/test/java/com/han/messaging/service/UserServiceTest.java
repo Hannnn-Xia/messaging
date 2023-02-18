@@ -6,6 +6,7 @@ import com.han.messaging.enums.Gender;
 import com.han.messaging.enums.StatusCode;
 import com.han.messaging.exception.MessagingServiceException;
 import com.han.messaging.model.User;
+import com.han.messaging.model.UserValidationCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +21,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
+    private static final String TEST_USERNAME = "user";
+    private static final String TEST_PASSWORD = "password";
+    private static final String TEST_VALIDATION_CODE = "123123";
+    private static final int TEST_USER_ID = 1;
+
     @Mock
     UserDAO userDAO;
 
@@ -28,6 +34,7 @@ public class UserServiceTest {
 
     @InjectMocks
     UserService userService;
+
 
 
     @Test
@@ -78,5 +85,21 @@ public class UserServiceTest {
         MessagingServiceException messagingServiceException = assertThrows(MessagingServiceException.class,
                 () -> this.userService.register("", "xxxxxxxx", "t", "", Gender.MALE, "", ""));
         assertEquals(StatusCode.PASSWORDS_NOT_MATCHED, messagingServiceException.getStatusCode());
+    }
+
+    @Test
+    public void testActivate_happyCase() throws Exception {
+        var user = new User();
+        user.setId(TEST_USER_ID);
+        user.setUsername(TEST_USERNAME);
+        user.setPassword(TEST_PASSWORD);
+        when(this.userDAO.selectByUsername(TEST_USERNAME)).thenReturn(user);
+
+        var userValidationCode = new UserValidationCode();
+        userValidationCode.setUserId(1);
+        userValidationCode.setValidationCode(TEST_VALIDATION_CODE);
+        when(this.userValidationCodeDAO.findLatestByUserId(TEST_USER_ID)).thenReturn(userValidationCode);
+
+        this.userService.activate(TEST_USERNAME, TEST_PASSWORD, TEST_VALIDATION_CODE);
     }
 }
