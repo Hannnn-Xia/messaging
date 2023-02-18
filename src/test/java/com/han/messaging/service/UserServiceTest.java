@@ -21,6 +21,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
+    private static final String TEST_USERNAME = "user";
+    private static final String TEST_PASSWORD = "password";
+    private static final String TEST_VALIDATION_CODE = "123123";
+    private static final int TEST_USER_ID = 1;
+
     @Mock
     UserDAO userDAO;
 
@@ -29,6 +34,7 @@ public class UserServiceTest {
 
     @InjectMocks
     UserService userService;
+
 
 
     @Test
@@ -84,16 +90,16 @@ public class UserServiceTest {
     @Test
     public void testActivate_happyCase() throws Exception {
         var user = new User();
-        user.setId(1);
-        user.setUsername("user");
-        user.setPassword("password");
-        when(this.userDAO.selectByUsername("user")).thenReturn(user);
+        user.setId(TEST_USER_ID);
+        user.setUsername(TEST_USERNAME);
+        user.setPassword(TEST_PASSWORD);
+        when(this.userDAO.selectByUsername(TEST_USERNAME)).thenReturn(user);
 
         var userValidationCode = new UserValidationCode();
         userValidationCode.setUserId(1);
-        userValidationCode.setValidationCode("123123");
-        when(this.userValidationCodeDAO.findLatestByUserId(1)).thenReturn(userValidationCode);
+        userValidationCode.setValidationCode(TEST_VALIDATION_CODE);
+        when(this.userValidationCodeDAO.findLatestByUserId(TEST_USER_ID)).thenReturn(userValidationCode);
 
-        this.userService.activate("user", "password", "123123");
+        this.userService.activate(TEST_USERNAME, TEST_PASSWORD, TEST_VALIDATION_CODE);
     }
 }
