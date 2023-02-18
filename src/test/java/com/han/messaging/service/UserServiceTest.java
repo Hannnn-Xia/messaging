@@ -6,6 +6,7 @@ import com.han.messaging.enums.Gender;
 import com.han.messaging.enums.StatusCode;
 import com.han.messaging.exception.MessagingServiceException;
 import com.han.messaging.model.User;
+import com.han.messaging.model.UserValidationCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -78,5 +79,21 @@ public class UserServiceTest {
         MessagingServiceException messagingServiceException = assertThrows(MessagingServiceException.class,
                 () -> this.userService.register("", "xxxxxxxx", "t", "", Gender.MALE, "", ""));
         assertEquals(StatusCode.PASSWORDS_NOT_MATCHED, messagingServiceException.getStatusCode());
+    }
+
+    @Test
+    public void testActivate_happyCase() throws Exception {
+        var user = new User();
+        user.setId(1);
+        user.setUsername("user");
+        user.setPassword("password");
+        when(this.userDAO.selectByUsername("user")).thenReturn(user);
+
+        var userValidationCode = new UserValidationCode();
+        userValidationCode.setUserId(1);
+        userValidationCode.setValidationCode("123123");
+        when(this.userValidationCodeDAO.findLatestByUserId(1)).thenReturn(userValidationCode);
+
+        this.userService.activate("user", "password", "123123");
     }
 }
